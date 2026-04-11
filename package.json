@@ -8,6 +8,7 @@
     "dev": "electron-vite dev",
     "build": "electron-vite build",
     "build:installer": "electron-vite build && electron-builder",
+    "build:mac": "electron-vite build && electron-builder",
     "preview": "electron-vite preview",
     "lint": "eslint \"src/**/*.{ts,tsx}\" \"tests/**/*.{ts,tsx}\" \"electron.vite.config.ts\" \"vitest.config.ts\" \"playwright.config.ts\"",
     "format": "prettier --write .",
@@ -55,7 +56,7 @@
   },
   "build": {
     "appId": "com.tmuxsessions.explorer",
-    "productName": "Tmux Sessions Explorer",
+    "productName": "Tmux Explorer",
     "directories": {
       "output": "release"
     },
@@ -63,8 +64,13 @@
       "out/**/*"
     ],
     "mac": {
-      "target": "dmg",
-      "category": "public.app-category.developer-tools"
+      "target": [
+        "dmg",
+        "dir"
+      ],
+      "icon": "build/icon.icns",
+      "category": "public.app-category.developer-tools",
+      "identity": null
     }
   }
 }

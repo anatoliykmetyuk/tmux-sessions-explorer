@@ -1,3 +1,4 @@
+import { execSync } from 'node:child_process'
 import { existsSync } from 'node:fs'
 import { join } from 'node:path'
 import { app, BrowserWindow } from 'electron'
@@ -5,6 +6,28 @@ import { IPC } from '@shared/ipc'
 import { registerIpcHandlers } from './ipc/handlers'
 import { PtyService } from './services/pty-service'
 import { TmuxService } from './services/tmux-service'
+
+/** macOS GUI apps get a minimal PATH; restore login-shell PATH so `tmux` resolves (Homebrew, etc.). */
+function fixPath(): void {
+  if (process.platform !== 'darwin') return
+  try {
+    const shell = process.env.SHELL || '/bin/zsh'
+    const result = execSync(`${shell} -ilc 'printf "%s" "$PATH"'`, {
+      encoding: 'utf8',
+      timeout: 5000
+    }).trim()
+    if (result) process.env.PATH = result
+  } catch {
+    const extra = ['/opt/homebrew/bin', '/opt/homebrew/sbin', '/usr/local/bin', '/usr/local/sbin']
+    const current = process.env.PATH || ''
+    const missing = extra.filter((p) => !current.split(':').includes(p))
+    if (missing.length) process.env.PATH = [...missing, current].filter(Boolean).join(':')
+  }
+}
+
+fixPath()
+
+app.setName('Tmux Explorer')
 
 let mainWindow: BrowserWindow | null = null
 const tmuxService = new TmuxService()
@@ -25,7 +48,7 @@ function createWindow(): void {
   mainWindow = new BrowserWindow({
     width: 1280,
     height: 820,
-    title: 'Tmux Sessions Explorer',
+    title: 'Tmux Explorer',
     webPreferences: {
       preload: resolvePreloadScript(),
       contextIsolation: true,
