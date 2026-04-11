@@ -12,9 +12,9 @@ jobs:
   build-arm64:
     runs-on: macos-14
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 20
           cache: npm
@@ -37,7 +37,7 @@ jobs:
       - name: Package macOS (arm64)
         run: npx electron-builder --mac dmg zip --arm64 --publish never
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: mac-arm64
           path: |
@@ -48,9 +48,9 @@ jobs:
   build-x64:
     runs-on: macos-15-intel
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 20
           cache: npm
@@ -73,7 +73,7 @@ jobs:
       - name: Package macOS (x64)
         run: npx electron-builder --mac dmg zip --x64 --publish never
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: mac-x64
           path: |
@@ -85,9 +85,9 @@ jobs:
     needs: [build-arm64, build-x64]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v6
         with:
           path: dist
           merge-multiple: true
