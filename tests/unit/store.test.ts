@@ -45,6 +45,25 @@ describe('useExplorerStore', () => {
     expect(tab?.ptyId).toBe('pty-1')
   })
 
+  it('setActiveTerminal does not remove or recreate terminal tabs', async () => {
+    await useExplorerStore.getState().openSession('/sock', 'srv', 'a')
+    createPty.mockResolvedValueOnce({ ptyId: 'pty-2' })
+    await useExplorerStore.getState().openSession('/sock', 'srv', 'b')
+
+    const order = useExplorerStore.getState().terminalOrder
+    const terminalsSnapshot = { ...useExplorerStore.getState().terminals }
+
+    useExplorerStore.getState().setActiveTerminal(order[0]!)
+
+    expect(useExplorerStore.getState().terminals).toEqual(terminalsSnapshot)
+    expect(useExplorerStore.getState().activeTerminalId).toBe(order[0])
+
+    useExplorerStore.getState().setActiveTerminal(order[1]!)
+
+    expect(useExplorerStore.getState().terminals).toEqual(terminalsSnapshot)
+    expect(useExplorerStore.getState().activeTerminalId).toBe(order[1])
+  })
+
   it('closeTerminal destroys pty and updates active tab', async () => {
     await useExplorerStore.getState().openSession('/sock', 'srv', 'a')
     await useExplorerStore.getState().openSession('/sock', 'srv', 'b')

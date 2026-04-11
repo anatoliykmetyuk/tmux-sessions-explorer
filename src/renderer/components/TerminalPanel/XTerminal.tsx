@@ -3,8 +3,16 @@ import { FitAddon } from '@xterm/addon-fit'
 import { Terminal } from '@xterm/xterm'
 import '@xterm/xterm/css/xterm.css'
 
-export function XTerminal({ ptyId }: { ptyId: string | null }): JSX.Element | null {
+export function XTerminal({
+  ptyId,
+  isActive
+}: {
+  ptyId: string | null
+  isActive: boolean
+}): JSX.Element | null {
   const containerRef = useRef<HTMLDivElement>(null)
+  const termRef = useRef<Terminal | null>(null)
+  const fitRef = useRef<FitAddon | null>(null)
 
   useEffect(() => {
     if (!ptyId || !containerRef.current) return
@@ -15,6 +23,8 @@ export function XTerminal({ ptyId }: { ptyId: string | null }): JSX.Element | nu
       theme: { background: '#000000', foreground: '#e8ecf1' }
     })
     const fit = new FitAddon()
+    termRef.current = term
+    fitRef.current = fit
     term.loadAddon(fit)
     term.open(containerRef.current)
     fit.fit()
@@ -30,11 +40,13 @@ export function XTerminal({ ptyId }: { ptyId: string | null }): JSX.Element | nu
     const el = containerRef.current
     const ro = new ResizeObserver(() => {
       fit.fit()
-      window.tmuxExplorer.resizePty({
-        ptyId,
-        cols: term.cols,
-        rows: term.rows
-      })
+      if (term.cols > 0 && term.rows > 0) {
+        window.tmuxExplorer.resizePty({
+          ptyId,
+          cols: term.cols,
+          rows: term.rows
+        })
+      }
     })
     ro.observe(el)
 
@@ -43,8 +55,36 @@ export function XTerminal({ ptyId }: { ptyId: string | null }): JSX.Element | nu
       dataDisposable.dispose()
       unsubData()
       term.dispose()
+      termRef.current = null
+      fitRef.current = null
     }
   }, [ptyId])
+
+  useEffect(() => {
+    if (!isActive || !ptyId || !fitRef.current || !termRef.current) return
+
+    const fit = fitRef.current
+    const term = termRef.current
+    let raf1 = 0
+    let raf2 = 0
+    raf1 = requestAnimationFrame(() => {
+      raf2 = requestAnimationFrame(() => {
+        fit.fit()
+        if (term.cols > 0 && term.rows > 0) {
+          window.tmuxExplorer.resizePty({
+            ptyId,
+            cols: term.cols,
+            rows: term.rows
+          })
+        }
+      })
+    })
+
+    return () => {
+      cancelAnimationFrame(raf1)
+      cancelAnimationFrame(raf2)
+    }
+  }, [isActive, ptyId])
 
   if (!ptyId) {
     return <div className="empty-state">Starting tmux client…</div>

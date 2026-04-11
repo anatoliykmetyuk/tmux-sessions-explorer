@@ -63,9 +63,7 @@ app.whenReady().then(() => {
 app.on('window-all-closed', () => {
   tmuxService.stop()
   ptyService.destroyAll()
-  if (process.platform !== 'darwin') {
-    app.quit()
-  }
+  app.quit()
 })
 
 app.on('before-quit', () => {
