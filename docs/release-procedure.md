@@ -52,11 +52,11 @@ Tags that do not match this pattern do **not** trigger the workflow.
 
 | Job | Runner | Output |
 |------------|-----------|---------------------------------------------|
-| `build-arm64` | macOS 14 | `release/*.dmg`, `release/*.zip` (arm64)   |
-| `build-x64`   | macOS 13 | `release/*.dmg`, `release/*.zip` (x64)     |
-| `publish`     | Ubuntu   | Creates the GitHub Release; uploads assets |
+| `build-arm64` | `macos-14` (arm64) | `release/*.dmg`, `release/*.zip` (arm64)   |
+| `build-x64`   | `macos-15-intel`   | `release/*.dmg`, `release/*.zip` (x64)     |
+| `publish`     | Ubuntu             | Creates the GitHub Release; uploads assets |
 
-Each build job runs `npm ci`, lint, typecheck, unit tests, `npm run build` (electron-vite), then `electron-builder` for the given architecture.
+Each build job runs `npm ci`, lint, typecheck, unit tests, `npm run build` (electron-vite), then `electron-builder` for the given architecture. Intel/x64 uses the `macos-15-intel` runner label because GitHub retired the old `macos-13` image.
 
 ## If something goes wrong
 
