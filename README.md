@@ -1,5 +1,7 @@
 # Tmux Sessions Explorer
 
+[![CI](https://github.com/anatoliykmetyuk/tmux-sessions-explorer/actions/workflows/ci.yml/badge.svg)](https://github.com/anatoliykmetyuk/tmux-sessions-explorer/actions/workflows/ci.yml)
+
 Desktop app to browse local **tmux** servers (socket files) and **sessions**, with an embedded terminal that attaches to a selected session.
 
 ## Requirements
