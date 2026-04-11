@@ -141,4 +141,34 @@ describe('TerminalPanel', () => {
       expect(useExplorerStore.getState().terminalOrder.length).toBe(0)
     })
   })
+
+  it('closes a tab on middle-click (auxclick button 1)', async () => {
+    const destroyPty = vi.fn().mockResolvedValue(undefined)
+    window.tmuxExplorer.destroyPty = destroyPty
+
+    useExplorerStore.setState({
+      terminals: {
+        t1: {
+          id: 't1',
+          ptyId: 'pty-1',
+          socketPath: '/sock',
+          socketName: 'srv',
+          sessionName: 's1'
+        }
+      },
+      terminalOrder: ['t1'],
+      activeTerminalId: 't1'
+    })
+
+    render(<TerminalPanel />)
+    const tab = screen.getByRole('tab', { name: /s1/i })
+    fireEvent(
+      tab,
+      new MouseEvent('auxclick', { bubbles: true, cancelable: true, button: 1 })
+    )
+    expect(destroyPty).toHaveBeenCalledWith('pty-1')
+    await waitFor(() => {
+      expect(useExplorerStore.getState().terminalOrder.length).toBe(0)
+    })
+  })
 })

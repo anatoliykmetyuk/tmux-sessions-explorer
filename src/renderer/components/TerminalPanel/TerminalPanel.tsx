@@ -19,6 +19,12 @@ export function TerminalPanel(): JSX.Element {
               key={id}
               className={`tab ${id === activeTerminalId ? 'active' : ''}`}
               onClick={() => setActive(id)}
+              onAuxClick={(e) => {
+                if (e.button === 1) {
+                  e.preventDefault()
+                  void close(id)
+                }
+              }}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                   e.preventDefault()
