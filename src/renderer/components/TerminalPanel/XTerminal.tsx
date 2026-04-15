@@ -3,9 +3,7 @@ import { FitAddon } from '@xterm/addon-fit'
 import { Terminal } from '@xterm/xterm'
 import type { TerminalObservationMode } from '@shared/types'
 import '@xterm/xterm/css/xterm.css'
-
-// Tune how much of the available panel height read-only capture should try to fill.
-const CAPTURE_VIEWPORT_ROWS_FRACTION = 0.75
+import { formatCaptureDataForXterm, getCaptureTargetRows } from './capture-format'
 
 export function XTerminal({
   mode,
@@ -22,7 +20,6 @@ export function XTerminal({
   const termRef = useRef<Terminal | null>(null)
   const fitRef = useRef<FitAddon | null>(null)
   const captureRowsRef = useRef(0)
-  const getCaptureTargetRows = (rows: number): number => Math.max(1, Math.floor(rows * CAPTURE_VIEWPORT_ROWS_FRACTION))
 
   useEffect(() => {
     if (!containerRef.current) return
@@ -88,7 +85,7 @@ export function XTerminal({
         }
         // Drop scrollback + visible screen; plain text from capture-pane (no -e) so no cursor junk.
         term.write('\x1b[3J\x1b[2J\x1b[H')
-        term.write(payload.data)
+        term.write(formatCaptureDataForXterm(payload.data))
       })
 
       const el = containerRef.current
