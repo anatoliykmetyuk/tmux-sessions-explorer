@@ -71,7 +71,12 @@ export function TerminalPanel(): JSX.Element {
                     display: isActive ? 'block' : 'none'
                   }}
                 >
-                  <XTerminal ptyId={tab.ptyId} isActive={isActive} />
+                  <XTerminal
+                    mode={tab.mode}
+                    ptyId={tab.ptyId}
+                    captureId={tab.captureId}
+                    isActive={isActive}
+                  />
                 </div>
               )
             })

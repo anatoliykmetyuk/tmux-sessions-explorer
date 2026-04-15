@@ -1,6 +1,10 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { IPC } from '@shared/ipc'
 import type {
+  CaptureCreateRequest,
+  CaptureCreateResponse,
+  CaptureDataPayload,
+  CaptureResizePayload,
   PtyCreateRequest,
   PtyCreateResponse,
   PtyDataPayload,
@@ -22,6 +26,13 @@ const api = {
 
   createPty: (req: PtyCreateRequest): Promise<PtyCreateResponse> => ipcRenderer.invoke(IPC.PTY_CREATE, req),
 
+  createCapture: (req: CaptureCreateRequest): Promise<CaptureCreateResponse> =>
+    ipcRenderer.invoke(IPC.CAPTURE_CREATE, req),
+
+  resizeCapture: (payload: CaptureResizePayload): void => {
+    ipcRenderer.send(IPC.CAPTURE_RESIZE, payload)
+  },
+
   onPtyData: (cb: (payload: PtyDataPayload) => void): (() => void) => {
     const listener = (_event: Electron.IpcRendererEvent, payload: PtyDataPayload) => cb(payload)
     ipcRenderer.on(IPC.PTY_DATA, listener)
@@ -38,7 +49,17 @@ const api = {
     ipcRenderer.send(IPC.PTY_RESIZE, payload)
   },
 
-  destroyPty: (ptyId: string): Promise<void> => ipcRenderer.invoke(IPC.PTY_DESTROY, ptyId)
+  destroyPty: (ptyId: string): Promise<void> => ipcRenderer.invoke(IPC.PTY_DESTROY, ptyId),
+
+  onCaptureData: (cb: (payload: CaptureDataPayload) => void): (() => void) => {
+    const listener = (_event: Electron.IpcRendererEvent, payload: CaptureDataPayload) => cb(payload)
+    ipcRenderer.on(IPC.CAPTURE_DATA, listener)
+    return () => {
+      ipcRenderer.removeListener(IPC.CAPTURE_DATA, listener)
+    }
+  },
+
+  destroyCapture: (captureId: string): Promise<void> => ipcRenderer.invoke(IPC.CAPTURE_DESTROY, captureId)
 }
 
 contextBridge.exposeInMainWorld('tmuxExplorer', api)

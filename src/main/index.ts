@@ -4,6 +4,7 @@ import { join } from 'node:path'
 import { app, BrowserWindow } from 'electron'
 import { IPC } from '@shared/ipc'
 import { registerIpcHandlers } from './ipc/handlers'
+import { CaptureService } from './services/capture-service'
 import { PtyService } from './services/pty-service'
 import { TmuxService } from './services/tmux-service'
 
@@ -34,6 +35,12 @@ const tmuxService = new TmuxService()
 const ptyService = new PtyService((payload) => {
   if (mainWindow && !mainWindow.isDestroyed()) {
     mainWindow.webContents.send(IPC.PTY_DATA, payload)
+  }
+})
+
+const captureService = new CaptureService((payload) => {
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send(IPC.CAPTURE_DATA, payload)
   }
 })
 
@@ -71,7 +78,7 @@ function createWindow(): void {
 }
 
 app.whenReady().then(() => {
-  registerIpcHandlers(() => mainWindow, tmuxService, ptyService)
+  registerIpcHandlers(() => mainWindow, tmuxService, ptyService, captureService)
   createWindow()
   tmuxService.start()
 
@@ -86,10 +93,12 @@ app.whenReady().then(() => {
 app.on('window-all-closed', () => {
   tmuxService.stop()
   ptyService.destroyAll()
+  captureService.destroyAll()
   app.quit()
 })
 
 app.on('before-quit', () => {
   tmuxService.stop()
   ptyService.destroyAll()
+  captureService.destroyAll()
 })

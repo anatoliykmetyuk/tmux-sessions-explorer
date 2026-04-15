@@ -9,10 +9,14 @@ describe('TerminalPanel', () => {
       getTmuxTree: vi.fn(),
       onTmuxTreeUpdated: () => () => {},
       createPty: vi.fn(),
+      createCapture: vi.fn(),
       onPtyData: () => () => {},
+      onCaptureData: () => () => {},
       writePty: vi.fn(),
       resizePty: vi.fn(),
-      destroyPty: vi.fn().mockResolvedValue(undefined)
+      resizeCapture: vi.fn(),
+      destroyPty: vi.fn().mockResolvedValue(undefined),
+      destroyCapture: vi.fn().mockResolvedValue(undefined)
     }
   })
 
@@ -32,14 +36,18 @@ describe('TerminalPanel', () => {
       terminals: {
         t1: {
           id: 't1',
+          mode: 'attach',
           ptyId: 'pty-1',
+          captureId: null,
           socketPath: '/sock',
           socketName: 'srv',
           sessionName: 's1'
         },
         t2: {
           id: 't2',
+          mode: 'attach',
           ptyId: 'pty-2',
+          captureId: null,
           socketPath: '/sock',
           socketName: 'srv',
           sessionName: 's2'
@@ -59,14 +67,18 @@ describe('TerminalPanel', () => {
       terminals: {
         t1: {
           id: 't1',
+          mode: 'attach',
           ptyId: 'pty-1',
+          captureId: null,
           socketPath: '/sock',
           socketName: 'srv',
           sessionName: 's1'
         },
         t2: {
           id: 't2',
+          mode: 'attach',
           ptyId: 'pty-2',
+          captureId: null,
           socketPath: '/sock',
           socketName: 'srv',
           sessionName: 's2'
@@ -88,14 +100,18 @@ describe('TerminalPanel', () => {
       terminals: {
         t1: {
           id: 't1',
+          mode: 'attach',
           ptyId: 'pty-1',
+          captureId: null,
           socketPath: '/sock',
           socketName: 'srv',
           sessionName: 's1'
         },
         t2: {
           id: 't2',
+          mode: 'attach',
           ptyId: 'pty-2',
+          captureId: null,
           socketPath: '/sock',
           socketName: 'srv',
           sessionName: 's2'
@@ -124,7 +140,9 @@ describe('TerminalPanel', () => {
       terminals: {
         t1: {
           id: 't1',
+          mode: 'attach',
           ptyId: 'pty-1',
+          captureId: null,
           socketPath: '/sock',
           socketName: 'srv',
           sessionName: 's1'
@@ -150,7 +168,9 @@ describe('TerminalPanel', () => {
       terminals: {
         t1: {
           id: 't1',
+          mode: 'attach',
           ptyId: 'pty-1',
+          captureId: null,
           socketPath: '/sock',
           socketName: 'srv',
           sessionName: 's1'

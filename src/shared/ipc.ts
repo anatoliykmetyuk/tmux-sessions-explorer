@@ -5,7 +5,11 @@ export const IPC = {
   PTY_DATA: 'pty:data',
   PTY_WRITE: 'pty:write',
   PTY_RESIZE: 'pty:resize',
-  PTY_DESTROY: 'pty:destroy'
+  PTY_DESTROY: 'pty:destroy',
+  CAPTURE_CREATE: 'capture:create',
+  CAPTURE_RESIZE: 'capture:resize',
+  CAPTURE_DATA: 'capture:data',
+  CAPTURE_DESTROY: 'capture:destroy'
 } as const
 
 export type IpcChannel = (typeof IPC)[keyof typeof IPC]

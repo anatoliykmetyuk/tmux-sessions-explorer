@@ -6,20 +6,25 @@ interface ExplorerState {
   terminals: Record<string, TerminalTab>
   terminalOrder: string[]
   activeTerminalId: string | null
+  readOnly: boolean
 
   setServerTree: (tree: TmuxServer[]) => void
+  setReadOnly: (readOnly: boolean) => void
   openSession: (socketPath: string, socketName: string, sessionName: string) => Promise<void>
   setActiveTerminal: (id: string | null) => void
   closeTerminal: (id: string) => Promise<void>
 }
 
 export const useExplorerStore = create<ExplorerState>((set, get) => ({
-  serverTree: [],
+   serverTree: [],
   terminals: {},
   terminalOrder: [],
   activeTerminalId: null,
+  readOnly: true,
 
   setServerTree: (serverTree) => set({ serverTree }),
+
+  setReadOnly: (readOnly) => set({ readOnly }),
 
   openSession: async (socketPath, socketName, sessionName) => {
     const { terminals, terminalOrder } = get()
@@ -32,9 +37,12 @@ export const useExplorerStore = create<ExplorerState>((set, get) => ({
     }
 
     const id = crypto.randomUUID()
+    const readOnly = get().readOnly
     const tab: TerminalTab = {
       id,
+      mode: readOnly ? 'capture' : 'attach',
       ptyId: null,
+      captureId: null,
       socketPath,
       socketName,
       sessionName
@@ -47,13 +55,23 @@ export const useExplorerStore = create<ExplorerState>((set, get) => ({
     })
 
     try {
-      const { ptyId } = await window.tmuxExplorer.createPty({ socketPath, sessionName })
-      set((state) => ({
-        terminals: {
-          ...state.terminals,
-          [id]: { ...state.terminals[id], ptyId }
-        }
-      }))
+      if (readOnly) {
+        const { captureId } = await window.tmuxExplorer.createCapture({ socketPath, sessionName })
+        set((state) => ({
+          terminals: {
+            ...state.terminals,
+            [id]: { ...state.terminals[id], captureId }
+          }
+        }))
+      } else {
+        const { ptyId } = await window.tmuxExplorer.createPty({ socketPath, sessionName })
+        set((state) => ({
+          terminals: {
+            ...state.terminals,
+            [id]: { ...state.terminals[id], ptyId }
+          }
+        }))
+      }
     } catch (e) {
       console.error(e)
       await get().closeTerminal(id)
@@ -64,7 +82,13 @@ export const useExplorerStore = create<ExplorerState>((set, get) => ({
 
   closeTerminal: async (id) => {
     const tab = get().terminals[id]
-    if (tab?.ptyId) {
+    if (tab?.mode === 'capture' && tab.captureId) {
+      try {
+        await window.tmuxExplorer.destroyCapture(tab.captureId)
+      } catch {
+        // ignore
+      }
+    } else if (tab?.ptyId) {
       try {
         await window.tmuxExplorer.destroyPty(tab.ptyId)
       } catch {
