@@ -71,7 +71,7 @@ export class CaptureService {
         const rows = Math.max(1, Math.min(MAX_CAPTURE_ROWS, Math.max(paneRows ?? 0, active.requestedRows)))
         const captureArgs = ['-S', socketPath, 'capture-pane', '-p'] as string[]
         if (!paneRows || rows > paneRows) {
-          captureArgs.push('-S', `-${rows}`, '-E', '-1')
+          captureArgs.push('-S', `-${rows}`)
         }
         captureArgs.push('-t', sessionName)
 

@@ -103,7 +103,7 @@ describe('CaptureService', () => {
 
     expect(execImpl).toHaveBeenCalledWith(
       'tmux',
-      ['-S', '/sock', 'capture-pane', '-p', '-S', '-60', '-E', '-1', '-t', 'sess'],
+      ['-S', '/sock', 'capture-pane', '-p', '-S', '-60', '-t', 'sess'],
       expect.objectContaining({ encoding: 'utf8' })
     )
     expect(sent.at(-1)).toEqual({
